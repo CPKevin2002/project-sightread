@@ -1,23 +1,18 @@
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import OSMDReactComponent from './OpenSheetMusicDisplay';
 
 function App() {
+  const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/BeetAnGeSample.musicxml';
+
+  const handleExit = () => {
+    // Handle the exit logic here
+    console.log('Exit button clicked');
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <OSMDReactComponent file={sampleMusicXmlUrl} onExit={handleExit} />
     </div>
   );
 }
