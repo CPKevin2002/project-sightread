@@ -2,22 +2,20 @@ import React, { useState, useEffect } from 'react';
 
 const MIDIConnection = () => {
   const [midiAccess, setMidiAccess] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [midiMessages, setMidiMessages] = useState([]); // State to store MIDI messages
 
   useEffect(() => {
-    // Check for Web MIDI support.
     if (navigator.requestMIDIAccess) {
-      // Request MIDI access
       navigator.requestMIDIAccess().then(
         (access) => {
-          // Successfully retrieved MIDI access object
           setMidiAccess(access);
+          setIsConnected(true);
 
-          // Handle MIDI connections and disconnections
           access.onstatechange = (event) => {
             console.log(event.port.name, event.port.manufacturer, event.port.state);
           };
 
-          // Access inputs and connect them to your application
           const inputs = access.inputs.values();
           for (let input of inputs) {
             input.onmidimessage = getMIDIMessage;
@@ -25,24 +23,34 @@ const MIDIConnection = () => {
         },
         () => {
           console.log('Could not access MIDI devices.');
+          setIsConnected(false);
         }
       );
     }
   }, []);
 
-  // Function to handle incoming MIDI messages
   const getMIDIMessage = (message) => {
     const command = message.data[0];
     const note = message.data[1];
     const velocity = (message.data.length > 2) ? message.data[2] : 0;
 
-    console.log(`MIDI message received. Command: ${command}, Note: ${note}, Velocity: ${velocity}`);
-    // Do something with the MIDI input, like updating the state
+    // Update the midiMessages state with the new message
+    setMidiMessages(prevMessages => [...prevMessages, `Command: ${command}, Note: ${note}, Velocity: ${velocity}`]);
   };
 
   return (
     <div>
-      {/* Your UI components here */}
+      <h1>Testing MIDI connection</h1>
+      {isConnected ? <p>MIDI connection successful!</p> : <p>Connecting to MIDI devices...</p>}
+
+      <div>
+        <h2>MIDI Messages:</h2>
+        <ul>
+          {midiMessages.map((msg, index) => (
+            <li key={index}>{msg}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
