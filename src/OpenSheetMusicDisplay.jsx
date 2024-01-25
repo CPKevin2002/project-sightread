@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
 
-const IterateCursor = ({cursor}) => {
+const iterateCursor = (cursor) => {
   cursor.reset();
   cursor.show();
+  cursor.next();
+  cursor.next();
 }
 
 const OSMDReactComponent = ({ file }) => {
@@ -20,10 +22,10 @@ const OSMDReactComponent = ({ file }) => {
     osmd.load(file).then(
       () => {
         osmd.render();
-        IterateCursor(osmd.cursor);
+        iterateCursor(osmd.cursor);
       }
       );
-  }, [file]);
+  }, []);
 
   return <div ref={osmdContainerRef} />;
 };

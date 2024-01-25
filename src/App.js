@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import OSMDReactComponent from './OpenSheetMusicDisplay';
 import MIDIConnection from './MIDIConnection';
-import NoteMatchingComponent from './NoteMatching';
 
 function App() {
   const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/BeetAnGeSample.musicxml';
