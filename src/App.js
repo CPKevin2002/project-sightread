@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import OSMDReactComponent from './OpenSheetMusicDisplay';
 import MIDIConnection from './MIDIConnection';
+import MIDIViewer from './MIDIViewer';
+
 
 function App() {
   const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/BeetAnGeSample.musicxml';
@@ -16,6 +18,7 @@ function App() {
       <OSMDReactComponent file={sampleMusicXmlUrl}/>
       {/* <MIDIConnection /> */}
       {/* <NoteMatchingComponent file={sampleMusicXmlUrl}/> */}
+      {/* <MIDIViewer /> */}
     </div>
   );
 }

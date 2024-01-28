@@ -1,46 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
+import NoteMatcher from './noteMatcher';
 
 
 const OSMDReactComponent = ({ file }) => {
-  const osmdContainerRef = useRef();
-  const [cursorChanged, setCursorChanged] = useState(false);
+  const osmdContainerRef = useRef(null);
+  const osmdRef = useRef(null);
 
   useEffect(() => {
-    const osmd = new OpenSheetMusicDisplay(osmdContainerRef.current, {
-      autoResize: true,
-      backend: 'svg'
-    });
+    if (osmdContainerRef.current && !osmdRef.current) {
+      osmdRef.current = new OpenSheetMusicDisplay(osmdContainerRef.current, {
+        autoResize: true,
+        backend: "svg",
+        drawTitle: true,
+      });
 
-    osmd.load(file).then(() => {
-      osmd.render();
-      iterateCursor(osmd.cursor);
-    });
-  }, [file]); // Depend on `file` to reload OSMD when the file changes
-
-  useEffect(() => {
-    // Effect to handle cursor changes
-    // You can put logic here that needs to run when the cursor changes
-    if (cursorChanged) {
-      // Reset the state to allow for future changes
-      setCursorChanged(false);
-      // Any additional logic for when the cursor changes
+      osmdRef.current.load(file)
+        .then(() => {
+          osmdRef.current.render();
+           // let test = this.cursor.show();
+          let m = new NoteMatcher(osmdRef.current.cursor, osmdRef.current.sheet);
+        })
+        .catch(error => console.error("Could not load the sheet music:", error));
     }
-  }, [cursorChanged]); // Depend on `cursorChanged`
+  }, [file]);
 
-  const iterateCursor = (cursor) => {
-    cursor.reset();
-    cursor.show();
-    while (!cursor.Iterator.EndReached) {
-      console.log("advance!");
-      cursor.next();
-    }
-    cursor.reset();
-    // Call this to trigger a re-render
-    setCursorChanged(true);
-  };
-
-  return <div ref={osmdContainerRef} />;
+  return <div ref={osmdContainerRef} style={{ width: "100%", height: "100%" }} />;
 };
 
 export default OSMDReactComponent;
