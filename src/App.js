@@ -6,7 +6,7 @@ import MIDIViewer from './MIDIViewer';
 
 
 function App() {
-  const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/BeetAnGeSample.musicxml';
+  const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/Minuet_in_G_Major_Bach.mxl';
 
   const handleExit = () => {
     // Handle the exit logic here
