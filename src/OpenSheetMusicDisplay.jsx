@@ -19,8 +19,7 @@ const OSMDReactComponent = ({ file }) => {
       osmdRef.current.load(file)
         .then(() => {
           osmdRef.current.render();
-           // let test = this.cursor.show();
-           setCursor(osmdRef.current.cursor); 
+          setCursor(osmdRef.current.cursor); 
           let m = new NoteMatcher(osmdRef.current.cursor, osmdRef.current.sheet);
         })
         .catch(error => console.error("Could not load the sheet music:", error));
