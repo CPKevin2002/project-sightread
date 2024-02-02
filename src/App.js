@@ -1,28 +1,24 @@
-import React from 'react';
 import './App.css';
 import OSMDReactComponent from './OpenSheetMusicDisplay';
-import MIDIConnection from './MIDIConnection';
-import MIDIViewer from './MIDIViewer';
-import SheetMusicViewer from './SheetMusicViewer';
+import WelcomeScreen from './WelcomeScreen';
+import React, { useState } from 'react';
 
 
 function App() {
-  const sampleMusicXmlUrl = process.env.PUBLIC_URL + '/Prelude_C_Major_-_Bach.mxl';
+  const [fileContent, setFileContent] = useState(null);
 
-  const handleExit = () => {
-    // Handle the exit logic here
-    console.log('Exit button clicked');
+  const handleFileLoaded = (content) => {
+    setFileContent(content);
   };
 
   return (
     <div className="App">
-      {/* <OSMDReactComponent file={sampleMusicXmlUrl}/> */}
-      {/* <MIDIConnection /> */}
-      {/* <NoteMatchingComponent file={sampleMusicXmlUrl}/> */}
-      {/* <MIDIViewer /> */}
-      <SheetMusicViewer />
+      {fileContent ? (
+        <OSMDReactComponent file={fileContent} />
+      ) : (
+        <WelcomeScreen onFileLoaded={handleFileLoaded} />
+      )}
     </div>
   );
 }
-
 export default App;

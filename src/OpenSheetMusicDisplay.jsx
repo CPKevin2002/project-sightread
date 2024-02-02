@@ -4,6 +4,7 @@ import NoteMatcher from './noteMatcher';
 
 
 const OSMDReactComponent = ({ file }) => {
+
   const osmdContainerRef = useRef(null);
   const osmdRef = useRef(null);
   const [cursor, setCursor] = useState(null);
