@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
 import NoteMatcher from './noteMatcher';
+import TopBar from './TopBar';
 
 
-const OSMDReactComponent = ({ file }) => {
+const OSMDReactComponent = ({ file, onBack }) => {
 
   const osmdContainerRef = useRef(null);
   const osmdRef = useRef(null);
@@ -29,7 +30,10 @@ const OSMDReactComponent = ({ file }) => {
 
   useEffect(() => {}, [cursor]); 
 
-  return <div ref={osmdContainerRef} style={{ width: "100%", height: "100%" }} />;
+  return <>
+  <TopBar onBack={onBack} />
+  <div ref={osmdContainerRef} style={{ width: "100%", height: "100%" }} /> 
+  </>;
 };
 
 export default OSMDReactComponent;
