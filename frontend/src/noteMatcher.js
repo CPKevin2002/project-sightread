@@ -6,7 +6,6 @@ class NoteMatcher {
     constructor(cursor, sheet) {
         this.cursor = cursor;
         this.cursor.show();
-        
         this.sheet = sheet;
         this.notesPressed = new Set();
 

@@ -1,0 +1,24 @@
+/* TopBar.css */
+.top-bar {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d1d1d1;
+  }
+  
+  .back-button {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    background-color: #007aff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  
+  .back-button:hover {
+    background-color: #005ecb;
+  }
+  
