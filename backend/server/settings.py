@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "sheet_generator",
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
