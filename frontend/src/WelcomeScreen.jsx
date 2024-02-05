@@ -28,6 +28,20 @@ const WelcomeScreen = ({ onFileLoaded }) => {
     }
   };
 
+  const handleGenerateScore = () => {
+    // Call the Django backend to generate a random music score
+    fetch('http://localhost:8000/api/random-sheet/')
+      .then(response => response.json())
+      .then(data => {
+        // Assuming the backend returns a JSON object with a music_xml field
+        onFileLoaded(data.music_xml);
+      })
+      .catch(error => {
+        console.error('Error fetching random music sheet:', error);
+        alert('Failed to generate random score. Please try again.');
+      });
+  };
+
   return (
     <div className="welcome-screen">
       <h1>Project Sightread</h1>
@@ -42,8 +56,10 @@ const WelcomeScreen = ({ onFileLoaded }) => {
         <label htmlFor="file-input" className="button upload-button">
           Upload music sheet
         </label>
+        <button className="button generate-button" onClick={handleGenerateScore}>
+          Generate Random Score
+        </button>
       </div>
-      {/* You can add your Generate Random Music button and logic here if needed */}
     </div>
   );
 };
