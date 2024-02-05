@@ -42,6 +42,30 @@ const WelcomeScreen = ({ onFileLoaded }) => {
       });
   };
 
+  const handlePracticeScale = () => {
+    // Define the parameters for the scale you want to practice
+    const scaleParams = {
+      key: 'C major', // This should be dynamic based on user input or selection
+      start: 'C4',    // This could also be dynamic
+      end: 'C5'       // And this too
+    };
+
+    // Create a query string with the scale parameters
+    const queryParams = new URLSearchParams(scaleParams).toString();
+
+    // Call the Django backend to generate the scale
+    fetch(`http://localhost:8000/api/generate-scale/?${queryParams}`)
+      .then(response => response.json())
+      .then(data => {
+        // Assuming the backend returns a JSON object with a music_xml field
+        onFileLoaded(data.music_xml);
+      })
+      .catch(error => {
+        console.error('Error fetching scale:', error);
+        alert('Failed to generate scale. Please try again.');
+      });
+  };
+
   return (
     <div className="welcome-screen">
       <h1>Project Sightread</h1>
@@ -58,6 +82,9 @@ const WelcomeScreen = ({ onFileLoaded }) => {
         </label>
         <button className="button generate-button" onClick={handleGenerateScore}>
           Generate Random Score
+        </button>
+        <button className="button practice-scale-button" onClick={handlePracticeScale}>
+          Practice Scale
         </button>
       </div>
     </div>
