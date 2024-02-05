@@ -1,6 +1,6 @@
 # sheet_generator/services.py
 from music21 import stream, note, instrument, key, scale
-import random
+import random, tempfile
 
 # Tonic music generation (i.e. for each key,):
 # 1. Generate descending/ascending scales
@@ -21,15 +21,17 @@ def generate_random_music():
         n.pitch.midi = random.randint(60, 72)  # C4 to C5
         # Add the note to the stream
         s.append(n)
-
-    # Convert the stream to a MusicXML string
-    music_xml = s.write('musicxml')
+    
+     # Output the stream to a MusicXML file
+    music_xml = s.write('musicxml', fp=None)
 
     # Read the content of the file as a string
     with open(music_xml, 'r') as file:
         music_xml_content = file.read()
 
+
     return music_xml_content
+    
 
 
 def generate_scale_in_key(key_signature, start, end):
@@ -55,4 +57,11 @@ def generate_scale_in_key(key_signature, start, end):
         s.append(n)
     
     # Output the stream to a MusicXML file
-    s.write('musicxml', fp=f'{key_signature}_scale.musicxml')
+    music_xml = s.write('musicxml', fp=None)
+
+    # Read the content of the file as a string
+    with open(music_xml, 'r') as file:
+        music_xml_content = file.read()
+    
+    return music_xml_content
+

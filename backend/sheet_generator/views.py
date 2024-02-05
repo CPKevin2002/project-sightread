@@ -12,26 +12,12 @@ class RandomMusicSheetAPIView(APIView):
     
 class ScaleAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        key_signature = request.query_params.get('key', 'C major')
+        key_signature = request.query_params.get('key', 'C')
         start_note = request.query_params.get('start', 'C4')
         end_note = request.query_params.get('end', 'C5')
 
-        try:
-            musicxml_path = generate_scale_in_key(key_signature, start_note, end_note)
-            
-            # Read the content of the MusicXML file
-            with open(musicxml_path, 'rb') as f:
-                file_content = f.read()
+        music_xml_content = generate_scale_in_key(key_signature, start_note, end_note)
 
-            # Clean up the file after sending the response
-            os.remove(musicxml_path)
-
-            # Set the content type and headers for file download
-            response = Response(file_content, status=status.HTTP_200_OK, content_type='application/vnd.recordare.musicxml+xml')
-            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(musicxml_path)}"'
-            return response
-
-        except Exception as e:
-            # Handle any exceptions that occur
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'music_xml': music_xml_content})
+        
 

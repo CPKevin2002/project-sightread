@@ -45,7 +45,7 @@ const WelcomeScreen = ({ onFileLoaded }) => {
   const handlePracticeScale = () => {
     // Define the parameters for the scale you want to practice
     const scaleParams = {
-      key: 'C major', // This should be dynamic based on user input or selection
+      key: 'D', // This should be dynamic based on user input or selection
       start: 'C4',    // This could also be dynamic
       end: 'C5'       // And this too
     };
