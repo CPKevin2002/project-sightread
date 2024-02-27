@@ -26,7 +26,7 @@ const OSMDReactComponent = ({ file, onBack }) => {
         })
         .catch(error => console.error("Could not load the sheet music:", error));
     } 
-  }, [file]);
+  }, []);
 
   useEffect(() => {}, [cursor]); 
 
