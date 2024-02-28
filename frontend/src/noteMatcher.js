@@ -3,11 +3,12 @@ const MIDI_NOTE_OFF_MSG = 128;
 const MIDI_NOTE_ON_MSG = 144;
 
 class NoteMatcher {
-    constructor(cursor, sheet) {
+    constructor(cursor, sheet, onCursorMove) {
         this.cursor = cursor;
         this.cursor.show();
         this.sheet = sheet;
         this.notesPressed = new Set();
+        this.onCursorMove = onCursorMove;
 
         // Request MIDI access and setup
         this.initializeMIDI();
@@ -67,7 +68,7 @@ class NoteMatcher {
         });
     
         if (allNotesPressed) {
-            this.cursor.next();
+            this.advanceMatcher();
         }
         // this.notesPressed.clear();
     }
@@ -83,6 +84,16 @@ class NoteMatcher {
 
     reset() {
         this.cursor.reset();
+        if (this.onCursorMove) {
+            this.onCursorMove(); // Call the callback when the cursor moves
+        }
+    }
+
+    advanceMatcher() {
+        this.cursor.next();
+        if (this.onCursorMove) {
+            this.onCursorMove(); // Call the callback when the cursor moves
+        }
     }
 
     /* Functions for debugging */
