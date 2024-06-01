@@ -1,6 +1,9 @@
 # sheet_generator/services.py
 from music21 import stream, note, instrument, key, scale
-import random, tempfile
+from django.conf import settings
+import random, os, subprocess
+from django.core.files.storage import default_storage
+import uuid
 
 # Tonic music generation (i.e. for each key,):
 # 1. Generate descending/ascending scales
@@ -66,38 +69,33 @@ def generate_scale_in_key(key_signature, start, end):
     return music_xml_content
 
 
-@csrf_exempt
-def convert_musicxml(request):
-    if request.method == 'POST' and request.FILES.get('file'):
-        file = request.FILES['file']
-        filename = file.name
-        file_path = default_storage.save(filename, file)
+def convert_musicxml_file(file):
+    filename = file.name
+    file_path = default_storage.save(filename, file)
+    unique_id = uuid.uuid4().hex
+    temp_output_path = os.path.join(os.path.dirname(file_path), f'temp_output_{unique_id}.mxl')
 
-        if filename.lower().endswith(('.xml', '.musicxml')):
-            # Convert .xml or .musicxml to .mxl using MuseScore
-            temp_output_path = os.path.join(os.path.dirname(file_path), 'temp_output.mxl')
-            command = f'mscore -o {temp_output_path} {file_path}'
-
-            try:
-                subprocess.run(command, shell=True, check=True)
-                with open(temp_output_path, 'rb') as f:
-                    file_data = f.read()
-
-                # Clean up
-                os.remove(file_path)
-                os.remove(temp_output_path)
-
-                return HttpResponse(file_data, content_type='application/vnd.recordare.musicxml+xml')
-            except subprocess.CalledProcessError as e:
-                return HttpResponseBadRequest(f"Error during file conversion: {str(e)}")
-        elif filename.lower().endswith('.mxl'):
-            with open(file_path, 'rb') as f:
+    if filename.lower().endswith(('.xml', '.musicxml')):
+        # Convert .xml or .musicxml to .mxl using MuseScore
+        command = f'\'{settings.MUSESCORE_PATH}\' -o {temp_output_path} {file_path}'
+        try:
+            subprocess.run(command, shell=True, check=True)
+            with open(temp_output_path, 'rb') as f:
                 file_data = f.read()
 
+            # Clean up
             os.remove(file_path)
-            return HttpResponse(file_data, content_type='application/vnd.recordare.musicxml+xml')
-        else:
-            return HttpResponseBadRequest("Unsupported file type")
+            os.remove(temp_output_path)
+            
+            return file_data
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Error during file conversion: {str(e)}")
+    elif filename.lower().endswith('.mxl'):
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
+        
+        os.remove(file_path)
+        return file_data
     else:
-        return HttpResponseBadRequest("Invalid request")
+        raise Exception("Unsupported file type")
 
