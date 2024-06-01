@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { OpenSheetMusicDisplay } from 'opensheetmusicdisplay';
 import TopBar from './TopBar';
 import MockMIDI from './MockMIDI';
@@ -7,62 +7,43 @@ import NoteMatcher from './noteMatcher';
 const OSMDReactComponent = ({ file, onBack }) => {
   const osmdContainerRef = useRef(null);
   const osmdRef = useRef(null);
-  const [cursor, setCursor] = useState(null);
-  const [noteMatcher, setNoteMatcher] = useState(null);
+  const noteMatcherRef = useRef(null);
+  const [, setCursorUpdate] = useState(0); // State to trigger re-renders
 
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const handleCursorMove = useCallback(() => {
-    setRefreshKey(prevKey => prevKey + 1);
-  }, []);
-
-  const loadAndRenderOSMD = useCallback(() => {
-    if (osmdContainerRef.current && !osmdRef.current) {
+  useEffect(() => {
+    if (osmdContainerRef.current) {
       osmdRef.current = new OpenSheetMusicDisplay(osmdContainerRef.current, {
         autoResize: true,
         backend: 'svg',
         drawTitle: true,
       });
-      console.log("reload shit!");
 
-      osmdRef.current?.load(file)
-        .then(() => {
+      osmdRef.current.load(file).then(() => {
+        osmdRef.current.render();
+        const cursor = osmdRef.current.cursor;
+        cursor.show();
+        noteMatcherRef.current = new NoteMatcher(cursor, osmdRef.current.sheet, null);
+        console.log('New note matcher has been initialized!');
 
-          console.log("reload shit2!");
-          osmdRef.current.render();
-          const newCursor = osmdRef.current.cursor;
-          setCursor(newCursor);
-          if (!noteMatcher) { // Initialize NoteMatcher only once
-            const m = new NoteMatcher(newCursor, osmdRef.current.sheet, handleCursorMove);
-            console.log('New note matcher has been initialized!');
-            setNoteMatcher(m);
+        // Set interval to advance the cursor and update state every 100ms
+        const interval = setInterval(() => {
+          if (cursor) {
+            cursor.next();
+            setCursorUpdate(prev => prev + 1); // Trigger re-render
+            console.log("Good");
           }
-        })
-        .catch(error => console.error('Could not load the sheet music:', error));
+        }, 500);
+
+        // Cleanup interval on unmount
+        return () => clearInterval(interval);
+      }).catch(error => console.error('Could not load the sheet music:', error));
     }
-
-    osmdRef.current.render();
-
-
-
-  }, [file, noteMatcher, handleCursorMove]);
-
-  // Initial load
-  useEffect(() => {
-    loadAndRenderOSMD();
-    console.log("use effect!~");
-  }, [file, loadAndRenderOSMD]);
-
-  // Re-render on refreshKey change
-  useEffect(() => {
-    loadAndRenderOSMD();
-    console.log("use effect2!~");
-  }, [refreshKey, loadAndRenderOSMD]);
+  }, [file]); // Empty dependency array ensures this effect runs only once
 
   return (
     <>
       <TopBar onBack={onBack} />
-      {noteMatcher && <MockMIDI noteMatcher={noteMatcher} />}
+      {noteMatcherRef.current && <MockMIDI noteMatcher={noteMatcherRef.current} />}
       <div ref={osmdContainerRef} style={{ width: '100%', height: '100%' }} />
     </>
   );

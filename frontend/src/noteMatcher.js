@@ -92,8 +92,13 @@ class NoteMatcher {
     advanceMatcher() {
         this.cursor.next();
         if (this.onCursorMove) {
+            console.log("Callback invoked");
             this.onCursorMove(); // Call the callback when the cursor moves
         }
+    }
+
+    showCursor() {
+        this.cursor.show();
     }
 
     /* Functions for debugging */
