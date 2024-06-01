@@ -17,25 +17,42 @@ function App() {
       return;
     }
 
-    const reader = new FileReader();
     let filename = files[0].name;
 
-    reader.onload = async (event) => {
-      let fileData = event.target.result;
-      setFileContent(fileData);
+    const arrayBufferToBinaryString = (buffer) => {
+      const bytes = new Uint8Array(buffer);
+      let binaryString = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binaryString += String.fromCharCode(bytes[i]);
+      }
+      return binaryString;
     };
 
-    reader.onerror = (event) => {
-      console.error("File could not be read: " + event.target.error.code);
-    };
 
     if (filename.toLowerCase().indexOf(".xml") > 0
-      || filename.toLowerCase().indexOf(".musicxml") > 0) {
-      reader.readAsText(files[0]);
-    } else if (filename.toLowerCase().indexOf(".mxl") > 0) {
-      reader.readAsBinaryString(files[0]);
+        || filename.toLowerCase().indexOf(".musicxml") > 0
+        || filename.toLowerCase().indexOf(".mxl") > 0) {
+        
+        const formData = new FormData();
+        formData.append('file', files[0]);
+
+        try {
+            const response = await fetch('http://localhost:8000/api/convert_musicxml/', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const fileData = await response.arrayBuffer();
+            const binaryString = arrayBufferToBinaryString(fileData);
+            setFileContent(binaryString);
+        } catch (error) {
+            console.error('Error:', error);
+        }
     } else {
-      alert("No valid .xml/.mxl/.musicxml file!");
+        alert("No valid .xml/.mxl/.musicxml file!");
     }
   };
 
