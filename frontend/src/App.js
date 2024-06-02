@@ -4,6 +4,16 @@ import JSZip from 'jszip';
 import OSMDReactComponent from './OpenSheetMusicDisplay';
 import TopBar from './TopBar';
 
+
+const arrayBufferToBinaryString = (buffer) => {
+  const bytes = new Uint8Array(buffer);
+  let binaryString = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binaryString += String.fromCharCode(bytes[i]);
+  }
+  return binaryString;
+};
+
 function App() {
   const [fileContent, setFileContent] = useState(null);
 
@@ -18,16 +28,6 @@ function App() {
     }
 
     let filename = files[0].name;
-
-    const arrayBufferToBinaryString = (buffer) => {
-      const bytes = new Uint8Array(buffer);
-      let binaryString = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binaryString += String.fromCharCode(bytes[i]);
-      }
-      return binaryString;
-    };
-
 
     if (filename.toLowerCase().indexOf(".mxl") < 0 
     && filename.toLowerCase().indexOf(".musicxml") < 0 
@@ -57,6 +57,7 @@ function App() {
             });
 
             if (!response.ok) {
+                console.log(response.status);
                 throw new Error('Network response was not ok');
             }
             const fileData = await response.arrayBuffer();
@@ -70,35 +71,31 @@ function App() {
         
   };
 
-  const handleGenerateScore = () => {
-    fetch('http://localhost:8000/api/random-sheet/')
-      .then(response => response.json())
-      .then(data => {
-        setFileContent(data.mxl);
-      })
-      .catch(error => {
-        console.error('Error fetching random music sheet:', error);
-        alert('Failed to generate random score. Please try again.');
-      });
+  const handleGenerateScore = async () => {
+    const response = await fetch ('http://localhost:8000/api/random-sheet/');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const fileData = await response.arrayBuffer();
+    const binaryString = arrayBufferToBinaryString(fileData);
+    setFileContent(binaryString);
   };
 
-  const handlePracticeScale = () => {
+
+  const handlePracticeScale = async () => {
     const scaleParams = {
       key: 'D',
       start: 'C4',
       end: 'C5'
     };
     const queryParams = new URLSearchParams(scaleParams).toString();
-
-    fetch(`http://localhost:8000/api/generate-scale/?${queryParams}`)
-      .then(response => response.json())
-      .then(data => {
-        setFileContent(data.music_xml);
-      })
-      .catch(error => {
-        console.error('Error fetching scale:', error);
-        alert('Failed to generate scale. Please try again.');
-      });
+    const response = await fetch (`http://localhost:8000/api/generate-scale/?${queryParams}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const fileData = await response.arrayBuffer();
+    const binaryString = arrayBufferToBinaryString(fileData);
+    setFileContent(binaryString);
   };
 
   const handleBack = () => {

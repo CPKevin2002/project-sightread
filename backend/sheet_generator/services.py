@@ -3,99 +3,71 @@ from music21 import stream, note, instrument, key, scale
 from django.conf import settings
 import random, os, subprocess
 from django.core.files.storage import default_storage
+from django.core.files.uploadedfile import SimpleUploadedFile
 import uuid
+
+
+"""
+Compress a .musicxml file to a compressed .mxl file format
+Returns the bytes for the .mxl
+"""
+def compress_music_xml_file(uncompressed_file_path: str) -> bytes:
+    unique_id = uuid.uuid4().hex
+    temp_output_path = os.path.join(os.path.dirname(uncompressed_file_path), f'temp_output_{unique_id}.mxl')
+    command = f'\'{settings.MUSESCORE_PATH}\' -o {temp_output_path} {uncompressed_file_path}'
+    try:
+        subprocess.run(command, shell=True, check=True)
+        with open(temp_output_path, 'rb') as f:
+            file_data = f.read()
+        # Clean up
+        os.remove(uncompressed_file_path)
+        os.remove(temp_output_path)
+        return file_data
+    except subprocess.CalledProcessError as e:
+        raise Exception(f"Error during file conversion: {str(e)}")
 
 # Tonic music generation (i.e. for each key,):
 # 1. Generate descending/ascending scales
 # 2. Generate melodies with varying degrees of jumps/accidentals
 # 3. Generate random music 
 
-def generate_random_music():
-
-    # Create a music stream
+def generate_random_music(num_notes=20, low=60, high=72):
     s = stream.Stream()
     s.insert(0, instrument.fromString('Piano'))
 
-    # Generate 5 random notes
-    for _ in range(20):
-        # Generate a random note
+    for _ in range(num_notes):
         n = note.Note()
-        # Randomize the note pitch
-        n.pitch.midi = random.randint(60, 72)  # C4 to C5
-        # Add the note to the stream
+        n.pitch.midi = random.randint(low, high)
         s.append(n)
     
-     # Output the stream to a MusicXML file
-    music_xml = s.write('musicxml', fp=None)
-
-    # Read the content of the file as a string
-    with open(music_xml, 'r') as file:
-        music_xml_content = file.read()
-
-
-    return music_xml_content
-    
+    # Output the stream to a MusicXML file
+    music_xml_path = s.write(fp=None)
+    return compress_music_xml_file(music_xml_path)
 
 
 def generate_scale_in_key(key_signature, start, end):
-    # Create a music21 key object based on the key_signature string provided
     music_key = key.Key(key_signature)
-    
-    # Create a scale object based on the key - it could be major or minor
     if music_key.mode == 'major':
         scl = scale.MajorScale(music_key.tonic)
     else:
         scl = scale.MinorScale(music_key.tonic)
-    
-    # Create a stream to hold the notes
     s = stream.Stream()
-    
-    # Add the key signature to the stream
     s.append(music_key)
-    
-    # Generate the ascending scale from start to end
+
     ascending_notes = scl.getPitches(start, end)
     for p in ascending_notes:
         n = note.Note(p)
         s.append(n)
     
-    # Output the stream to a MusicXML file
-    music_xml = s.write('musicxml', fp=None)
-
-    # Read the content of the file as a string
-    with open(music_xml, 'r') as file:
-        music_xml_content = file.read()
-    
-    return music_xml_content
+    music_xml_path = s.write('musicxml', fp=None)
+    return compress_music_xml_file(music_xml_path)
 
 
 def convert_musicxml_file(file):
     filename = file.name
+    if not filename.lower().endswith(('.xml', '.musicxml')):
+        raise Exception("Unsupported file type:", filename)
+    
     file_path = default_storage.save(filename, file)
-    unique_id = uuid.uuid4().hex
-    temp_output_path = os.path.join(os.path.dirname(file_path), f'temp_output_{unique_id}.mxl')
-
-    if filename.lower().endswith(('.xml', '.musicxml')):
-        # Convert .xml or .musicxml to .mxl using MuseScore
-        command = f'\'{settings.MUSESCORE_PATH}\' -o {temp_output_path} {file_path}'
-        try:
-            subprocess.run(command, shell=True, check=True)
-            with open(temp_output_path, 'rb') as f:
-                file_data = f.read()
-
-            # Clean up
-            os.remove(file_path)
-            os.remove(temp_output_path)
-            
-            return file_data
-        except subprocess.CalledProcessError as e:
-            raise Exception(f"Error during file conversion: {str(e)}")
-    elif filename.lower().endswith('.mxl'):
-        with open(file_path, 'rb') as f:
-            file_data = f.read()
-        
-        os.remove(file_path)
-        return file_data
-    else:
-        raise Exception("Unsupported file type")
-
+    return compress_music_xml_file(file_path)
+    
