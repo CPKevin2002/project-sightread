@@ -8,7 +8,7 @@ const OSMDReactComponent = ({ file, onBack }) => {
   const osmdContainerRef = useRef(null);
   const osmdRef = useRef(null);
   const noteMatcherRef = useRef(null);
-  const [, setNoteMatcherInitialized] = useState(false); // State to trigger re-renders
+  const [, setNoteMatcherInitialized] = useState(false);
 
   useEffect(() => {
     if (osmdContainerRef.current) {

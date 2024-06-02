@@ -29,11 +29,25 @@ function App() {
     };
 
 
-    if (filename.toLowerCase().indexOf(".xml") > 0
-        || filename.toLowerCase().indexOf(".musicxml") > 0
-        || filename.toLowerCase().indexOf(".mxl") > 0) {
-        
-        const formData = new FormData();
+    if (filename.toLowerCase().indexOf(".mxl") < 0 
+    && filename.toLowerCase().indexOf(".musicxml") < 0 
+    && filename.toLowerCase().indexOf(".xml") < 0) {
+      alert("No valid .xml/.mxl/.musicxml file!");
+    }
+
+
+    if (filename.toLowerCase().indexOf(".mxl") > 0) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const binaryString = arrayBufferToBinaryString(reader.result);
+        setFileContent(binaryString);
+      };
+      reader.onerror = (error) => {
+        console.error("Error reading .mxl file:", error);
+      };
+      reader.readAsArrayBuffer(files[0]);
+    } else {
+      const formData = new FormData();
         formData.append('file', files[0]);
 
         try {
@@ -51,9 +65,9 @@ function App() {
         } catch (error) {
             console.error('Error:', error);
         }
-    } else {
-        alert("No valid .xml/.mxl/.musicxml file!");
     }
+
+        
   };
 
   const handleGenerateScore = () => {
