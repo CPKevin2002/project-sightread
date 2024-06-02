@@ -21,4 +21,19 @@
   .back-button:hover {
     background-color: #005ecb;
   }
+
+  .replay-button {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    background-color: #3d546c;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  
+  .replay-button:hover {
+    background-color: #3d546c;
+  }
   

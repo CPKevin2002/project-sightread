@@ -10,6 +10,10 @@ class NoteMatcher {
         this.notesPressed = new Set();
         this.onCursorMove = onCursorMove;
 
+        // Stats
+        this.numWrongNotes = 0;
+        this.numTotalNotes = 0; 
+
         // Request MIDI access and setup
         this.initializeMIDI();
         this.onMIDIEvent = this.onMIDIEvent.bind(this);
@@ -35,7 +39,6 @@ class NoteMatcher {
 
     onMIDIFailure() {
         console.error("Failed to get MIDI access.");
-        // Handle the error according to your application's needs
     }
 
     onMIDIEvent(midiMessage) {
@@ -61,18 +64,14 @@ class NoteMatcher {
 
     checkForNotes() {
         const targetNotes = this.cursor.NotesUnderCursor();
-    
         console.log("printing half tones required", targetNotes.map(note => note.halfTone));
-        console.log("current pressed keys", this.notesPressed);
-    
+        console.log("current pressed keys", this.notesPressed);    
         const allNotesPressed = targetNotes.every(note => {
             return note.isRest() || note.IsGraceNote || this.notesPressed.has(note.halfTone);
         });
-    
         if (allNotesPressed) {
             this.advanceMatcher();
         }
-        // this.notesPressed.clear();
     }
     
 
@@ -87,7 +86,7 @@ class NoteMatcher {
     reset() {
         this.cursor.reset();
         if (this.onCursorMove) {
-            this.onCursorMove(); // Call the callback when the cursor moves
+            this.onCursorMove();
         }
     }
 

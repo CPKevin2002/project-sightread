@@ -1,11 +1,14 @@
 import React from 'react';
-import './TopBar.css'; // Make sure to create a corresponding CSS file for styling
+import './TopBar.css';
 
-const TopBar = ({ onBack }) => {
+const TopBar = ({ onBack, onReplay }) => {
   return (
     <div className="top-bar">
       <button className="back-button" onClick={onBack}>
-        Back
+        Back to Menu
+      </button>
+      <button className="replay-button" onClick={onReplay}>
+        Replay
       </button>
     </div>
   );

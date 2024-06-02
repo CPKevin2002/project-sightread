@@ -16,6 +16,12 @@ const OSMDReactComponent = ({ file, onBack }) => {
     setCursorUpdate(prev => prev + 1);
   };
 
+  const onReplay = () => {
+    if (noteMatcherRef.current) {
+      noteMatcherRef.current.reset();
+    }
+  }
+
   useEffect(() => {
     if (osmdContainerRef.current) {
       osmdRef.current = new OpenSheetMusicDisplay(osmdContainerRef.current, {
@@ -37,7 +43,7 @@ const OSMDReactComponent = ({ file, onBack }) => {
 
   return (
     <>
-      <TopBar onBack={onBack} />
+      <TopBar onBack={onBack} onReplay={onReplay}/>
       {noteMatcherRef.current && <MockMIDI noteMatcher={noteMatcherRef.current} />}
       <div ref={osmdContainerRef} style={{ width: '100%', height: '100%' }} />
     </>
