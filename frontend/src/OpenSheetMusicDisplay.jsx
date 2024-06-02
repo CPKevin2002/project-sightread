@@ -8,7 +8,13 @@ const OSMDReactComponent = ({ file, onBack }) => {
   const osmdContainerRef = useRef(null);
   const osmdRef = useRef(null);
   const noteMatcherRef = useRef(null);
-  const [, setNoteMatcherInitialized] = useState(false);
+  const [, setNoteMatcherInitialized] = useState(false); // State to trigger re-renders
+  const [, setCursorUpdate] = useState(0); // State to trigger re-renders on cursor move
+
+  const onCursorMove = () => {
+    // Trigger a re-render by updating the state
+    setCursorUpdate(prev => prev + 1);
+  };
 
   useEffect(() => {
     if (osmdContainerRef.current) {
@@ -22,7 +28,7 @@ const OSMDReactComponent = ({ file, onBack }) => {
         osmdRef.current.render();
         const cursor = osmdRef.current.cursor;
         cursor.show();
-        noteMatcherRef.current = new NoteMatcher(cursor, osmdRef.current.sheet, null);
+        noteMatcherRef.current = new NoteMatcher(cursor, osmdRef.current.sheet, onCursorMove);
         setNoteMatcherInitialized(true); // Trigger a re-render
         console.log('New note matcher has been initialized!');
       }).catch(error => console.error('Could not load the sheet music:', error));

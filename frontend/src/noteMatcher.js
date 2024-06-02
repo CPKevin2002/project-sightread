@@ -28,8 +28,9 @@ class NoteMatcher {
         // Connect to MIDI input devices
         const inputs = midiAccess.inputs.values();
         for (let input of inputs) {
+            console.log("MIDI connection success");
             input.onmidimessage = this.onMIDIEvent.bind(this);
-        }
+        }  
     }
 
     onMIDIFailure() {
@@ -38,6 +39,7 @@ class NoteMatcher {
     }
 
     onMIDIEvent(midiMessage) {
+        console.log("MIDI event");
         const command = midiMessage.data[0];
         const note = midiMessage.data[1] - MIDI_STEPS_IN_OCTAVE;
 
